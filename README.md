@@ -50,7 +50,7 @@ When the system is active, the program continuously checks sensor values inside 
 
 These Python scripts were written for a Raspberry Pi running Raspberry Pi OS with Python 3.
 
-Because newer Raspberry Pi OS releases use an externally managed Python environment, it is recommended to install Python packages inside a virtual environment instead of using `pip3` system-wide. [web:2][web:97]
+Because newer Raspberry Pi OS releases use an externally managed Python environment, it is recommended to install Python packages inside a virtual environment instead of using `pip3` system-wide.   
 
 ### 1. Update the Pi
 
@@ -61,7 +61,7 @@ sudo apt-get upgrade -y
 
 ### 2. Install system packages
 
-These packages provide Python venv support and GPIO-related dependencies used by CircuitPython/Blinka on Raspberry Pi. [web:96]
+These packages provide Python venv support and GPIO-related dependencies used by CircuitPython/Blinka on Raspberry Pi.  
 
 ```bash
 sudo apt-get install -y python3-full python3-venv i2c-tools libgpiod-dev python3-libgpiod python3-rpi.gpio
@@ -75,7 +75,7 @@ source ~/sensor-env/bin/activate
 ```
 
 After activation, your terminal prompt should show the virtual environment name.  
-You must activate this environment each time before running the DHT11 or MCP3008 scripts. [web:97][web:99]
+You must activate this environment each time before running the DHT11 or MCP3008 scripts.   
 
 ### 4. Upgrade pip inside the virtual environment
 
@@ -96,20 +96,20 @@ pip install adafruit-circuitpython-mcp3xxx
 #### What each library is for
 
 - `python3-rpi.gpio`  
-  Used by scripts that directly use the `RPi.GPIO` library, such as the button script. [web:98]
+  Used by scripts that directly use the `RPi.GPIO` library, such as the button script.  
 
 - `adafruit-blinka`  
-  Provides CircuitPython-compatible modules such as `board`, `busio`, and `digitalio` on Raspberry Pi Linux. [web:96][web:101]
+  Provides CircuitPython-compatible modules such as `board`, `busio`, and `digitalio` on Raspberry Pi Linux.   
 
 - `adafruit-circuitpython-dht`  
-  Used for reading the DHT11 temperature sensor. [web:2][web:8]
+  Used for reading the DHT11 temperature sensor.   
 
 - `adafruit-circuitpython-mcp3xxx`  
-  Used for reading analog sensors through an MCP3008 ADC, including the Keystudio analog sound sensor. [web:85][web:99]
+  Used for reading analog sensors through an MCP3008 ADC, including the Keystudio analog sound sensor.   
 
 ### 6. Enable SPI for the MCP3008
 
-The MCP3008 uses the Raspberry Pi SPI interface, so SPI must be enabled before running the analog sound sensor script. Adafruit’s MCP3008 Raspberry Pi examples use the hardware SPI pins. [web:83][web:93]
+The MCP3008 uses the Raspberry Pi SPI interface, so SPI must be enabled before running the analog sound sensor script. Adafruit’s MCP3008 Raspberry Pi examples use the hardware SPI pins.   
 
 Enable SPI with:
 
@@ -162,16 +162,16 @@ python3 analog_sound_mcp3008.py
 #### `error: externally-managed-environment`
 
 This means Raspberry Pi OS is blocking system-wide `pip` installs.  
-Use a virtual environment as shown above instead of `sudo pip3 install ...`. [web:2][web:97]
+Use a virtual environment as shown above instead of `sudo pip3 install ...`.   
 
 #### `ModuleNotFoundError: No module named 'board'`
 
-This usually means `adafruit-blinka` is not installed in the active virtual environment. [web:96][web:101]
+This usually means `adafruit-blinka` is not installed in the active virtual environment.   
 
 #### `DHT sensor not found, check wiring`
 
-This is usually caused by incorrect wiring, a missing pull-up resistor on a bare DHT11 sensor, or a bad sensor. The DHT CircuitPython guide documents the library setup, while the Raspberry Pi DHT wiring guide uses GPIO4 in its examples. [web:8][web:43]
+This is usually caused by incorrect wiring, a missing pull-up resistor on a bare DHT11 sensor, or a bad sensor. The DHT CircuitPython guide documents the library setup, while the Raspberry Pi DHT wiring guide uses GPIO4 in its examples.   
 
 #### MCP3008 not responding
 
-Make sure SPI is enabled and that the MCP3008 is wired to the Pi’s hardware SPI pins correctly. The Raspberry Pi MCP3008 examples use SPI with `board.SCK`, `board.MISO`, and `board.MOSI`. [web:83][web:93]
+Make sure SPI is enabled and that the MCP3008 is wired to the Pi’s hardware SPI pins correctly. The Raspberry Pi MCP3008 examples use SPI with `board.SCK`, `board.MISO`, and `board.MOSI`.   
