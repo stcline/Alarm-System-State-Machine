@@ -43,3 +43,19 @@ The system is modeled with three states: `IDLE`, `ACTIVE`, and `ALARM`. In the `
 The program begins in the `IDLE` state and displays `IDLE` on the screen. A variable is used to track whether the system is active, allowing the button to toggle the system between `IDLE` and `ACTIVE`.  
 
 When the system is active, the program continuously checks sensor values inside the main loop. If the HC-SR04 ultrasonic sensor detects a close object, the sound sensor detects a loud sound, or the temperature/humidity sensor detects unusual environmental conditions, the program turns on the red LED and displays `ALARM`. Otherwise, it keeps the system in the `ACTIVE` state and displays `ACTIVE`.  
+
+## Required Libraries
+
+Before you begin it will be necessary to install the required libraries.
+
+First run the following commands to update and upgrade the library sources:
+
+```bash
+sudo apt update
+```
+
+```bash 
+sudo apt upgrade
+```
+
+Once those are set, you need to add the [Adafruit Circuitpython DHT Library](https://pypi.org/project/adafruit-circuitpython-dht/)

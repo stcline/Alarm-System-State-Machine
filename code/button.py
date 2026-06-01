@@ -7,6 +7,7 @@ import time
 import RPi.GPIO as GPIO # type: ignore
 
 # Set the GPIO mode
+
 GPIO.setmode(GPIO.BCM)
 
 # Define the GPIO pin for the button
