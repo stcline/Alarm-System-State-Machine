@@ -27,6 +27,8 @@ The system uses the following outputs:
 
 ## State Machine
 
+<img width="504" height="672" alt="State_Diagram_Alarm" src="https://github.com/user-attachments/assets/d0befad9-4de5-44a4-bfa6-946a5d365ab1" />
+
 The system is modeled with three states: `IDLE`, `ACTIVE`, and `ALARM`. In the `IDLE` state, the system is waiting to be activated. In the `ACTIVE` state, the system monitors the sensors for possible intruder conditions. In the `ALARM` state, the system signals that an intruder has been detected.  
 
 ### State Transitions
