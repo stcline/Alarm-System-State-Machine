@@ -46,18 +46,132 @@ The program begins in the `IDLE` state and displays `IDLE` on the screen. A vari
 
 When the system is active, the program continuously checks sensor values inside the main loop. If the HC-SR04 ultrasonic sensor detects a close object, the sound sensor detects a loud sound, or the temperature/humidity sensor detects unusual environmental conditions, the program turns on the red LED and displays `ALARM`. Otherwise, it keeps the system in the `ACTIVE` state and displays `ACTIVE`.  
 
-## Required Libraries
+## Installing Libraries and Dependencies
 
-Before you begin it will be necessary to install the required libraries.
+These Python scripts were written for a Raspberry Pi running Raspberry Pi OS with Python 3.
 
-First run the following commands to update and upgrade the library sources:
+Because newer Raspberry Pi OS releases use an externally managed Python environment, it is recommended to install Python packages inside a virtual environment instead of using `pip3` system-wide. [web:2][web:97]
+
+### 1. Update the Pi
 
 ```bash
-sudo apt update
+sudo apt-get update
+sudo apt-get upgrade -y
 ```
 
-```bash 
-sudo apt upgrade
+### 2. Install system packages
+
+These packages provide Python venv support and GPIO-related dependencies used by CircuitPython/Blinka on Raspberry Pi. [web:96]
+
+```bash
+sudo apt-get install -y python3-full python3-venv i2c-tools libgpiod-dev python3-libgpiod python3-rpi.gpio
 ```
 
-Once those are set, you need to add the [Adafruit Circuitpython DHT Library](https://pypi.org/project/adafruit-circuitpython-dht/)
+### 3. Create and activate a virtual environment
+
+```bash
+python3 -m venv ~/sensor-env
+source ~/sensor-env/bin/activate
+```
+
+After activation, your terminal prompt should show the virtual environment name.  
+You must activate this environment each time before running the DHT11 or MCP3008 scripts. [web:97][web:99]
+
+### 4. Upgrade pip inside the virtual environment
+
+```bash
+pip install --upgrade pip
+```
+
+### 5. Install Python libraries
+
+Install the libraries needed for all of the scripts:
+
+```bash
+pip install adafruit-blinka
+pip install adafruit-circuitpython-dht
+pip install adafruit-circuitpython-mcp3xxx
+```
+
+#### What each library is for
+
+- `python3-rpi.gpio`  
+  Used by scripts that directly use the `RPi.GPIO` library, such as the button script. [web:98]
+
+- `adafruit-blinka`  
+  Provides CircuitPython-compatible modules such as `board`, `busio`, and `digitalio` on Raspberry Pi Linux. [web:96][web:101]
+
+- `adafruit-circuitpython-dht`  
+  Used for reading the DHT11 temperature sensor. [web:2][web:8]
+
+- `adafruit-circuitpython-mcp3xxx`  
+  Used for reading analog sensors through an MCP3008 ADC, including the Keystudio analog sound sensor. [web:85][web:99]
+
+### 6. Enable SPI for the MCP3008
+
+The MCP3008 uses the Raspberry Pi SPI interface, so SPI must be enabled before running the analog sound sensor script. Adafruit’s MCP3008 Raspberry Pi examples use the hardware SPI pins. [web:83][web:93]
+
+Enable SPI with:
+
+```bash
+sudo raspi-config
+```
+
+Then go to:
+
+```text
+Interface Options -> SPI -> Yes
+```
+
+Reboot the Pi after enabling SPI:
+
+```bash
+sudo reboot
+```
+
+### 7. Running the scripts
+
+#### Button script
+
+If your button script uses `RPi.GPIO`, it can usually be run with:
+
+```bash
+python3 button.py
+```
+
+#### DHT11 temperature script
+
+Activate the virtual environment first:
+
+```bash
+source ~/sensor-env/bin/activate
+python3 dht11_temp.py
+```
+
+#### MCP3008 + analog sound sensor script
+
+Activate the virtual environment first:
+
+```bash
+source ~/sensor-env/bin/activate
+python3 analog_sound_mcp3008.py
+```
+
+### 8. Common issues
+
+#### `error: externally-managed-environment`
+
+This means Raspberry Pi OS is blocking system-wide `pip` installs.  
+Use a virtual environment as shown above instead of `sudo pip3 install ...`. [web:2][web:97]
+
+#### `ModuleNotFoundError: No module named 'board'`
+
+This usually means `adafruit-blinka` is not installed in the active virtual environment. [web:96][web:101]
+
+#### `DHT sensor not found, check wiring`
+
+This is usually caused by incorrect wiring, a missing pull-up resistor on a bare DHT11 sensor, or a bad sensor. The DHT CircuitPython guide documents the library setup, while the Raspberry Pi DHT wiring guide uses GPIO4 in its examples. [web:8][web:43]
+
+#### MCP3008 not responding
+
+Make sure SPI is enabled and that the MCP3008 is wired to the Pi’s hardware SPI pins correctly. The Raspberry Pi MCP3008 examples use SPI with `board.SCK`, `board.MISO`, and `board.MOSI`. [web:83][web:93]

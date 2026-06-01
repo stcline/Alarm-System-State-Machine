@@ -1,38 +1,42 @@
-# This Python script uses a Raspberry Pi to detect sound using a Keystudio sound sensor and prints whether sound is detected.
-# The sensor should be connected to the Raspberry Pi's GPIO pins as follows:
+# This Python script uses a Raspberry Pi with an MCP3008 analog-to-digital converter
+# to read the sound level from a Keystudio analog sound sensor and print the sound level as a percentage.
+# The MCP3008 should be connected to the Raspberry Pi's SPI pins.
+# The sound sensor should be connected as follows:
 # - VCC: Connect to 3.3V
 # - GND: Connect to Ground
-# - DO: Connect to GPIO18 (Pin 12) for digital threshold output
-# - Adjust the potentiometer on the module to set the sound detection threshold
+# - S: Connect to CH0 on the MCP3008
 
 import time
-import RPi.GPIO as GPIO # type: ignore
+import board
+import busio
+import digitalio
+import adafruit_mcp3xxx.mcp3008 as MCP
+from adafruit_mcp3xxx.analog_in import AnalogIn
 
-# Set the GPIO mode
-GPIO.setmode(GPIO.BCM)
+# Create the SPI bus
+spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
-# Define the GPIO pin for the sound sensor
-SOUND_PIN = 18
+# Create the chip select
+cs = digitalio.DigitalInOut(board.D5)
 
-# Set up the GPIO pin as an input
-GPIO.setup(SOUND_PIN, GPIO.IN)
+# Create the MCP3008 object
+mcp = MCP.MCP3008(spi, cs)
+
+# Create an analog input channel on pin 0
+sound_channel = AnalogIn(mcp, MCP.P0)
 
 try:
     while True:
-        # Read the state of the sound sensor
-        sound_state = GPIO.input(SOUND_PIN)
+        # Read the raw analog value from the sound sensor
+        raw_value = sound_channel.value
 
-        # Many sound sensor modules output LOW when sound exceeds the threshold
-        if sound_state == GPIO.LOW:
-            print("Sound Detected")
-        else:
-            print("No Sound Detected")
+        # Convert the 16-bit scaled value to a percentage
+        sound_percent = (raw_value / 65535) * 100
+
+        print(f"Sound Level: {sound_percent:.1f}%   Raw: {raw_value}   Voltage: {sound_channel.voltage:.2f}V")
 
         # Wait before the next reading
-        time.sleep(0.1)
+        time.sleep(0.2)
 
 except KeyboardInterrupt:
     print("Program stopped by User")
-
-finally:
-    GPIO.cleanup()  # Clean up GPIO settings
