@@ -6,15 +6,17 @@
 # - Data: Connect to GPIO4 (Pin 7) with a 4.7kΩ pull-up resistor between the Data line and VCC
 
 import time
-import Adafruit_DHT # type: ignore
+import adafruit_dht 
 
-# Set the sensor type and the GPIO pin number
-SENSOR = Adafruit_DHT.DHT11
+# Set the sensor GPIO pin number
 PIN = 4
+
+# Create an instance of the DHT11 sensor
+dht_device = adafruit_dht.DHT11(PIN)
 
 while True:
     # Read the humidity and temperature from the sensor
-    humidity, temperature = Adafruit_DHT.read_retry(SENSOR, PIN)
+    humidity, temperature = dht_device.read_retry()
     if humidity is not None and temperature is not None:
         print(f'Temperature: {temperature:.1f}°C  Humidity: {humidity:.1f}%')
     else:
