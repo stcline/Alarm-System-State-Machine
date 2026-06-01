@@ -5,21 +5,25 @@
 # - GND: Connect to Ground
 # - Data: Connect to GPIO4 (Pin 7) with a 4.7kΩ pull-up resistor between the Data line and VCC
 
+# dht11_temp.py
 import time
-import adafruit_dht 
+import board
+import adafruit_dht
 
-# Set the sensor GPIO pin number
-PIN = 4
+# DHT11 connected to GPIO4 (physical pin 7)
+dht_device = adafruit_dht.DHT11(board.D4)
 
-# Create an instance of the DHT11 sensor
-dht_device = adafruit_dht.DHT11(PIN)
-
-while True:
-    # Read the humidity and temperature from the sensor
-    humidity, temperature = dht_device.read_retry()
-    if humidity is not None and temperature is not None:
-        print(f'Temperature: {temperature:.1f}°C  Humidity: {humidity:.1f}%')
-    else:
-        print('Failed to get reading. Try again!')
-    # Wait for 2 seconds before the next reading
-    time.sleep(2)
+try:
+    while True:
+        try:
+            temperature_c = dht_device.temperature
+            if temperature_c is not None:
+                print(f"Temperature: {temperature_c:.1f} C")
+            else:
+                print("No reading received")
+        except RuntimeError as error:
+            # DHT sensors often fail transiently; just retry
+            print(f"Read error: {error}")
+        time.sleep(2.0)
+finally:
+    dht_device.exit()
