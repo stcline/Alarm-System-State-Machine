@@ -49,7 +49,7 @@ alarm_active = False
 last_button_state = GPIO.HIGH
 
 # Thresholds
-SOUND_THRESHOLD = 12.0
+SOUND_THRESHOLD = 8.0
 TEMP_THRESHOLD = 30.0
 DISTANCE_THRESHOLD = 20.0
 
