@@ -119,7 +119,7 @@ try:
             if sound_triggered or temp_triggered or distance_triggered:
                 print("ALERT: Sensor Triggered!")
 
-        time.sleep(.3)
+        time.sleep(.05)
 
 except KeyboardInterrupt:
     print("Program stopped by User")
