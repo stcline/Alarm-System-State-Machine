@@ -18,37 +18,30 @@ import adafruit_mcp3xxx.mcp3008 as MCP
 from adafruit_mcp3xxx.analog_in import AnalogIn
 import RPi.GPIO as GPIO # type: ignore
 
-# Set the GPIO mode
 GPIO.setmode(GPIO.BCM)
 
-# Define GPIO pins
 BUTTON_PIN = 17
 TRIG_PIN = 23
 ECHO_PIN = 24
 
-# Set up button and ultrasonic sensor pins
 GPIO.setup(BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 GPIO.setup(TRIG_PIN, GPIO.OUT)
 GPIO.setup(ECHO_PIN, GPIO.IN)
 GPIO.output(TRIG_PIN, False)
 
-# Set up the DHT11 temperature sensor
 dht_device = adafruit_dht.DHT11(board.D4)
 
-# Set up SPI and MCP3008 for the analog sound sensor
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
-cs = digitalio.DigitalInOut(board.D5)
+cs = digitalio.DigitalInOut(board.CE0)
 mcp = MCP.MCP3008(spi, cs)
 sound_channel = AnalogIn(mcp, MCP.P0)
 
-# Alarm state
 alarm_active = False
 last_button_state = GPIO.HIGH
 
-# Thresholds (adjust these after testing)
-SOUND_THRESHOLD = 12.0      # percent
-TEMP_THRESHOLD = 30.0       # Celsius
-DISTANCE_THRESHOLD = 20.0   # centimeters
+SOUND_THRESHOLD = 12.0
+TEMP_THRESHOLD = 30.0
+DISTANCE_THRESHOLD = 20.0
 
 def read_distance():
     GPIO.output(TRIG_PIN, True)
@@ -76,58 +69,39 @@ def read_distance():
 
 try:
     while True:
-        # Read the button state
         button_state = GPIO.input(BUTTON_PIN)
 
-        # Toggle alarm when button is pressed
         if button_state == GPIO.LOW and last_button_state == GPIO.HIGH:
             alarm_active = not alarm_active
-            if alarm_active:
-                print("Alarm system turned ON")
-            else:
-                print("Alarm system turned OFF")
-            time.sleep(0.3)  # simple debounce
+            time.sleep(0.3)
 
         last_button_state = button_state
 
+        sound_percent = (sound_channel.value / 65535) * 100
+
+        try:
+            temperature_c = dht_device.temperature
+        except RuntimeError:
+            temperature_c = None
+
+        distance_cm = read_distance()
+
+        sound_text = f"{sound_percent:.1f}%"
+        temp_text = f"{temperature_c:.1f} C" if temperature_c is not None else "N/A"
+        distance_text = f"{distance_cm:.1f} cm" if distance_cm is not None else "N/A"
+        alarm_text = "ON" if alarm_active else "OFF"
+
+        print(f"Alarm: {alarm_text} | Sound: {sound_text} | Temp: {temp_text} | Distance: {distance_text}")
+
         if alarm_active:
-            print("Alarm Activated!")
-
-            # Read sound level
-            sound_percent = (sound_channel.value / 65535) * 100
-
-            # Read temperature
-            try:
-                temperature_c = dht_device.temperature
-            except RuntimeError:
-                temperature_c = None
-
-            # Read distance
-            distance_cm = read_distance()
-
-            # Check thresholds
             sound_triggered = sound_percent > SOUND_THRESHOLD
             temp_triggered = temperature_c is not None and temperature_c > TEMP_THRESHOLD
             distance_triggered = distance_cm is not None and distance_cm < DISTANCE_THRESHOLD
 
             if sound_triggered or temp_triggered or distance_triggered:
                 print("ALERT: Sensor Triggered!")
-                if temperature_c is not None:
-                    print(f"Temperature: {temperature_c:.1f} C")
-                else:
-                    print("Temperature: No reading")
 
-                print(f"Sound Level: {sound_percent:.1f}%")
-
-                if distance_cm is not None:
-                    print(f"Distance: {distance_cm:.1f} cm")
-                else:
-                    print("Distance: No reading")
-
-            time.sleep(1)
-
-        else:
-            time.sleep(0.1)
+        time.sleep(1)
 
 except KeyboardInterrupt:
     print("Program stopped by User")
