@@ -17,7 +17,7 @@ from adafruit_mcp3xxx.analog_in import AnalogIn
 spi = busio.SPI(clock=board.SCK, MISO=board.MISO, MOSI=board.MOSI)
 
 # Create the chip select
-cs = digitalio.DigitalInOut(board.CEO)
+cs = digitalio.DigitalInOut(board.CE0)
 
 # Create the MCP3008 object
 mcp = MCP.MCP3008(spi, cs)
